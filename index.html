@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TrailRoute — Travel & Experiences</title>
+  <meta name="description" content="Simple travel website template (HTML + CSS + tiny JS) — responsive, accessible, single file." />
+  <style>
+    /* ====== Reset & base ====== */
+    :root{
+      --bg:#0f1724; /* dark blue-gray */
+      --muted:#6b7280;
+      --card:#ffffff;
+      --accent:#4f46e5; /* indigo */
+      --accent-2:#fb7185; /* rose */
+      --glass: rgba(255,255,255,0.06);
+      --maxw:1100px;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background:linear-gradient(180deg,#f8fafc 0%, #eef2ff 100%);
+      color:#0f1724; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* ====== Container ====== */
+    .container{max-width:var(--maxw);margin:0 auto;padding:22px}
+
+    /* ====== Header ====== */
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+    .brand{display:flex;gap:10px;align-items:center}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{font-weight:600;color:var(--muted)}
+    .cta{background:var(--accent);color:white;padding:8px 12px;border-radius:10px;font-weight:700}
+    .menu-toggle{display:none;border:1px solid rgba(15,23,36,0.06);padding:8px;border-radius:8px;background:white}
+
+    /* ====== Hero ====== */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:26px;align-items:center;padding:36px 0}
+    .hero-left h1{font-size:34px;margin:0 0 12px}
+    .hero-left p{margin:0;color:var(--muted)}
+    .search-card{background:linear-gradient(180deg,rgba(255,255,255,0.95),white);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,36,0.08)}
+    .search-row{display:flex;gap:8px}
+    .search-row input,.search-row select{flex:1;padding:12px;border:1px solid #e6e9f2;border-radius:10px}
+    .search-row button{background:var(--accent);color:white;padding:12px 16px;border:none;border-radius:10px;font-weight:700}
+
+    .hero-right{background-image:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=60');background-size:cover;background-position:center;height:340px;border-radius:18px;position:relative;overflow:hidden}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.35));display:flex;flex-direction:column;justify-content:flex-end;padding:20px;color:white}
+    .hero-overlay button{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);color:white;padding:10px 12px;border-radius:10px}
+
+    /* ====== Destinations ====== */
+    section.dest{padding:22px 0}
+    .dest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,36,0.06)}
+    .card .thumb{height:160px;background-size:cover;background-position:center}
+    .card .meta{padding:14px}
+    .card h3{margin:0;font-size:16px}
+    .card p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .card .row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .price{font-weight:800}
+    .btn{background:var(--accent);color:white;padding:8px 10px;border-radius:10px;border:none;cursor:pointer}
+
+    /* ====== Featured tours ====== */
+    .tours{background:linear-gradient(180deg,#fff,#fbfbff);padding:20px;border-radius:14px;margin-top:20px}
+    .tours-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+    /* ====== About + footer ====== */
+    .about{display:flex;gap:18px;align-items:center;padding:22px 0}
+    footer{padding:28px 0;color:var(--muted)}
+
+    /* ====== Modal ====== */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);visibility:hidden;opacity:0;transition:all .18s}
+    .modal.open{visibility:visible;opacity:1}
+    .modal .panel{background:white;border-radius:12px;padding:18px;max-width:520px;width:94%}
+
+    /* ====== Responsive ====== */
+    @media (max-width:1000px){
+      .hero{grid-template-columns:1fr}
+      .hero-right{height:260px}
+      .dest-grid{grid-template-columns:repeat(2,1fr)}
+      .tours-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:640px){
+      nav{display:none}
+      .menu-toggle{display:block}
+      .container{padding:14px}
+      .dest-grid{grid-template-columns:1fr}
+      .hero-left h1{font-size:26px}
+    }
+
+    /* small helper */
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">TR</div>
+        <div>
+          <div style="font-weight:800">TrailRoute</div>
+          <div class="small muted">Travel & experiences</div>
+        </div>
+      </div>
+
+      <nav aria-label="Main navigation">
+        <a href="#destinations">Destinations</a>
+        <a href="#tours">Tours</a>
+        <a href="#about">About</a>
+        <a href="#contact" class="cta">Contact</a>
+      </nav>
+
+      <button class="menu-toggle" id="menuToggle">Menu</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-left">
+          <h1>Find your next adventure</h1>
+          <p>Hand-picked trips and experiences — search, compare and book with confidence.</p>
+
+          <div class="search-card" style="margin-top:18px">
+            <form id="searchForm" class="search-row" onsubmit="return false;">
+              <input id="q" placeholder="Search destination or country" aria-label="Search destinations" />
+              <select id="dur">
+                <option value="any">Any duration</option>
+                <option value="short">1-3 days</option>
+                <option value="med">4-7 days</option>
+                <option value="long">8+ days</option>
+              </select>
+              <button id="searchBtn">Search</button>
+            </form>
+          </div>
+
+          <div class="tours">
+            <h3 style="margin:0 0 8px">Featured tours</h3>
+            <div class="tours-grid" id="toursGrid">
+              <div class="card" style="padding:12px">
+                <h4 style="margin:0">Sunrise Photography</h4>
+                <p class="small muted">Capture landscapes with a local guide.</p>
+                <div class="row" style="margin-top:10px">
+                  <div class="price">₹2,999</div>
+                  <button class="btn" onclick="openModal('Sunrise Photography')">Book</button>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <h4 style="margin:0">Cultural Walk & Food</h4>
+                <p class="small muted">Local food & stories.</p>
+                <div class="row" style="margin-top:10px">
+                  <div class="price">₹1,499</div>
+                  <button class="btn" onclick="openModal('Cultural Walk & Food')">Book</button>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <h4 style="margin:0">Adventure Trek</h4>
+                <p class="small muted">Multi-day trek with camping.</p>
+                <div class="row" style="margin-top:10px">
+                  <div class="price">₹6,999</div>
+                  <button class="btn" onclick="openModal('Adventure Trek')">Book</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right" role="img" aria-label="Scenic travel photo">
+          <div class="hero-overlay">
+            <div style="font-weight:700;font-size:18px">Explore Destinations</div>
+            <div style="margin-top:8px">Curated trips & local guides</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="destinations" class="dest">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h2 style="margin:0">Popular destinations</h2>
+            <div class="small muted">Top picks for travellers this season</div>
+          </div>
+          <div class="small muted" id="resultsCount">Showing 4 results</div>
+        </div>
+
+        <div class="dest-grid" id="destGrid" style="margin-top:12px">
+
+          <!-- card 1 -->
+          <article class="card" data-name="Leh-Ladakh" data-days="6">
+            <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1508264165352-258a6b4e10b3?auto=format&fit=crop&w=1200&q=60')" role="img" aria-label="Leh-Ladakh"></div>
+            <div class="meta">
+              <h3>Leh-Ladakh, India</h3>
+              <p class="small muted">India · 6 days</p>
+              <div class="row">
+                <div>
+                  <div class="small muted">Starting from</div>
+                  <div class="price">₹599</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="btn" onclick="openModal('Leh-Ladakh')">Book</button>
+                  <button class="small" onclick="alert('View details — demo')">View</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- card 2 -->
+          <article class="card" data-name="Bali" data-days="7">
+            <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=60')" role="img" aria-label="Bali"></div>
+            <div class="meta">
+              <h3>Bali, Indonesia</h3>
+              <p class="small muted">Indonesia · 7 days</p>
+              <div class="row">
+                <div>
+                  <div class="small muted">Starting from</div>
+                  <div class="price">₹799</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="btn" onclick="openModal('Bali')">Book</button>
+                  <button class="small" onclick="alert('View details — demo')">View</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- card 3 -->
+          <article class="card" data-name="Swiss Alps" data-days="5">
+            <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=60')" role="img" aria-label="Swiss Alps"></div>
+            <div class="meta">
+              <h3>Swiss Alps, Switzerland</h3>
+              <p class="small muted">Switzerland · 5 days</p>
+              <div class="row">
+                <div>
+                  <div class="small muted">Starting from</div>
+                  <div class="price">₹1,299</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="btn" onclick="openModal('Swiss Alps')">Book</button>
+                  <button class="small" onclick="alert('View details — demo')">View</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- card 4 -->
+          <article class="card" data-name="Kyoto" data-days="4">
+            <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=1200&q=60')" role="img" aria-label="Kyoto"></div>
+            <div class="meta">
+              <h3>Kyoto, Japan</h3>
+              <p class="small muted">Japan · 4 days</p>
+              <div class="row">
+                <div>
+                  <div class="small muted">Starting from</div>
+                  <div class="price">₹999</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="btn" onclick="openModal('Kyoto')">Book</button>
+                  <button class="small" onclick="alert('View details — demo')">View</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <section id="about" class="about">
+        <div style="flex:1">
+          <h3 style="margin:0">About TrailRoute</h3>
+          <p class="muted small" style="margin-top:8px">We curate meaningful travel experiences — small groups, sustainable operators and local guides. Flexible cancellations and 24/7 support.</p>
+        </div>
+        <div style="width:320px;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,36,0.06)">
+          <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1000&q=60" alt="about travel" style="width:100%;display:block" />
+        </div>
+      </section>
+
+    </main>
+
+    <footer id="contact">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-weight:800">TrailRoute</div>
+          <div class="small muted">Plan faster. Travel better.</div>
+        </div>
+        <div class="small muted">hello@trailroute.example · +91 98765 43210</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong id="modalTitle">Book trip</strong>
+        <button onclick="closeModal()" aria-label="Close">✕</button>
+      </div>
+      <p id="modalSub" class="muted small" style="margin-top:8px">Fill details to request booking (demo form).</p>
+
+      <form id="bookForm" style="margin-top:12px">
+        <label class="small muted">Your name</label>
+        <input id="name" required style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6e9f2" />
+        <label class="small muted" style="margin-top:10px;display:block">Contact email</label>
+        <input id="email" type="email" required style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6e9f2" />
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" type="button" onclick="submitBooking()">Request booking</button>
+          <button type="button" onclick="closeModal()" style="padding:10px;border-radius:8px;border:1px solid #e6e9f2;background:white">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Mobile menu toggle (very small demo)
+    document.getElementById('menuToggle').addEventListener('click', function(){
+      const nav = document.querySelector('nav');
+      if(nav.style.display === 'flex') nav.style.display = 'none';
+      else nav.style.display = 'flex';
+    });
+
+    // Simple search filter
+    const destGrid = document.getElementById('destGrid');
+    const resultsCount = document.getElementById('resultsCount');
+    document.getElementById('searchBtn').addEventListener('click', function(){
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const dur = document.getElementById('dur').value;
+      const cards = Array.from(destGrid.querySelectorAll('article'));
+      let shown = 0;
+      cards.forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        const days = parseInt(card.dataset.days,10);
+        let match = true;
+        if(q && !name.includes(q)) match = false;
+        if(dur === 'short' && !(days <=3)) match = false;
+        if(dur === 'med' && !(days >=4 && days <=7)) match = false;
+        if(dur === 'long' && !(days >=8)) match = false;
+        card.style.display = match ? 'block' : 'none';
+        if(match) shown++;
+      });
+      resultsCount.textContent = `Showing ${shown} result${shown!==1?'s':''}`;
+    });
+
+    // Modal logic
+    const modal = document.getElementById('modal');
+    function openModal(title){
+      document.getElementById('modalTitle').textContent = `Book: ${title}`;
+      document.getElementById('modalSub').textContent = `Request booking for ${title}. This is a demo form.`;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+    function submitBooking(){
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      if(!name || !email){alert('Please enter name and email.');return}
+      closeModal();
+      alert(`Thanks ${name}! Your booking request was received (demo).`);
+      document.getElementById('bookForm').reset();
+    }
+
+    // close modal on backdrop click
+    modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+  </script>
+</body>
+</html>  make it in 3 seperate file  html css and jawascript
